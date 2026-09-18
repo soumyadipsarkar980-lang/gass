@@ -1,0 +1,20 @@
+const SELLER_NUMBER = '919609819681';
+const products = [{ id: 'polyfix-rapid-hv-glue', name: 'Polyfix Rapid HV Glue', price: '₹200', category: 'Industrial Supplies', image: 'assets/IMAGE2.webp' }];
+const categories = ['Apparel & Garments', 'Electronics', 'Home & Kitchen', 'Beauty & Personal Care', 'Machinery', 'Packaging', 'Agriculture', 'Food & Beverage', 'Construction Materials', 'Industrial Supplies'];
+
+function whatsappUrl(message) { return `https://wa.me/${SELLER_NUMBER}?text=${encodeURIComponent(message)}`; }
+function productMessage(product) { return `Hello, I am interested in ${product.name}. The listed price is ${product.price}. Please share wholesale details and availability.`; }
+function openWhatsApp(message) { window.open(whatsappUrl(message), '_blank', 'noopener'); }
+function productCard(product) { return `<article class="product-card"><a class="product-image-link" href="product.html" aria-label="View ${product.name}"><img src="${product.image}" alt="${product.name}" /></a><div class="product-body"><span class="product-type">${product.category}</span><h3 class="product-title"><a href="product.html">${product.name}</a></h3><div class="product-footer"><span class="price">${product.price}</span><button class="button button-primary small-button js-whatsapp" type="button" data-product="${product.id}">Buy now <span>→</span></button></div></div></article>`; }
+function renderProducts(query = '') { const normalized = query.trim().toLowerCase(); const matches = products.filter(p => [p.name, p.category].some(value => value.toLowerCase().includes(normalized))); document.getElementById('product-results').innerHTML = matches.length ? matches.map(productCard).join('') : '<p class="empty-result">No demo products match that search. Try “Polyfix” or “Industrial Supplies”.</p>'; document.getElementById('search-status').textContent = normalized ? `${matches.length} product${matches.length === 1 ? '' : 's'} found` : ''; }
+function bindWhatsAppButtons() { document.addEventListener('click', event => { const button = event.target.closest('.js-whatsapp'); if (!button) return; event.preventDefault(); const product = products.find(item => item.id === button.dataset.product); openWhatsApp(product ? productMessage(product) : button.dataset.message); }); }
+
+const categoryGrid = document.getElementById('category-grid');
+if (categoryGrid) { categoryGrid.innerHTML = categories.map((category, index) => `<a class="category-card" href="#products" data-category="${category}"><span class="category-index">${String(index + 1).padStart(2, '0')}</span><span class="category-name">${category} <span aria-hidden="true">↗</span></span></a>`).join(''); categoryGrid.addEventListener('click', event => { const card = event.target.closest('[data-category]'); if (card) renderProducts(card.dataset.category); }); }
+if (document.getElementById('product-results')) renderProducts();
+bindWhatsAppButtons(); document.getElementById('year').textContent = new Date().getFullYear();
+const searchForm = document.getElementById('hero-search');
+if (searchForm) searchForm.addEventListener('submit', event => { event.preventDefault(); renderProducts(document.getElementById('search-input').value); document.getElementById('products').scrollIntoView({ behavior: 'smooth' }); });
+const enquiryForm = document.getElementById('enquiry-form');
+if (enquiryForm) enquiryForm.addEventListener('submit', event => { event.preventDefault(); const data = new FormData(event.currentTarget); const lines = [['Product required', 'product'], ['Quantity', 'quantity'], ['Budget', 'budget'], ['Location', 'location'], ['Additional requirements', 'notes']].filter(([, key]) => data.get(key).trim()).map(([label, key]) => `${label}: ${data.get(key).trim()}`); openWhatsApp(`Hello, I would like to share a wholesale requirement.\n\n${lines.join('\n')}`); });
+const menu = document.querySelector('.menu-toggle'); if (menu) menu.addEventListener('click', () => { const open = document.querySelector('.main-nav').classList.toggle('open'); menu.setAttribute('aria-expanded', open); });
